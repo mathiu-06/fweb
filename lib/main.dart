@@ -1,4 +1,17 @@
+import 'dart:convert';
+import 'dart:js_interop';
 import 'package:flutter/material.dart';
+
+@JS('window.open')
+external void _openUrl(String url, String target);
+
+@JS('fetch')
+external JSPromise<_JsResponse> _fetch(String url);
+
+extension type _JsResponse(JSObject _) implements JSObject {
+  external bool get ok;
+  external JSPromise<JSString> text();
+}
 
 void main() {
   runApp(const FwebApp());
@@ -25,12 +38,70 @@ class FwebApp extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  static const _apiUrl =
+      'https://api.github.com/repos/mathiu-06/fweb/contents/tunnel.json';
+
+  String? _tunnelUrl;
+  String? _updatedAt;
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTunnelUrl();
+  }
+
+  Future<void> _loadTunnelUrl() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    try {
+      final cacheBust = DateTime.now().millisecondsSinceEpoch;
+      final res = await _fetch('$_apiUrl?t=$cacheBust').toDart;
+      if (!res.ok) {
+        throw Exception('tunnel.json not found yet');
+      }
+
+      final body = (await res.text().toDart).toDart;
+      final apiJson = jsonDecode(body) as Map<String, dynamic>;
+      final rawBase64 = (apiJson['content'] as String).replaceAll('\n', '');
+      final decoded =
+          jsonDecode(utf8.decode(base64Decode(rawBase64))) as Map<String, dynamic>;
+
+      setState(() {
+        _tunnelUrl = decoded['url'] as String?;
+        _updatedAt = decoded['updated_at'] as String?;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'No active tunnel found yet.';
+        _loading = false;
+      });
+    }
+  }
+
+  void _openComfy() {
+    if (_tunnelUrl != null && _tunnelUrl!.isNotEmpty) {
+      _openUrl(_tunnelUrl!, '_blank');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isWide = MediaQuery.sizeOf(context).width >= 800;
+    final hasUrl = _tunnelUrl != null && _tunnelUrl!.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(
@@ -44,15 +115,14 @@ class HomePage extends StatelessWidget {
         ),
         actions: [
           if (isWide) ...[
-            TextButton(onPressed: () {}, child: const Text('Features')),
-            TextButton(onPressed: () {}, child: const Text('About')),
+            TextButton(onPressed: _loadTunnelUrl, child: const Text('Refresh URL')),
             const SizedBox(width: 12),
           ],
           Padding(
             padding: const EdgeInsets.only(right: 20),
             child: FilledButton(
-              onPressed: () {},
-              child: const Text('Get started'),
+              onPressed: hasUrl ? _openComfy : null,
+              child: const Text('Open ComfyUI'),
             ),
           ),
         ],
@@ -98,9 +168,13 @@ class HomePage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 24),
-                            const Text(
-                              'A friendly Flutter starter page designed to help you turn your next idea into an experience people love.',
-                              style: TextStyle(fontSize: 18, height: 1.5),
+                            Text(
+                              _loading
+                                  ? 'Checking for active ComfyUI tunnel...'
+                                  : hasUrl
+                                      ? 'Active tunnel: $_tunnelUrl${_updatedAt != null ? '\nUpdated: $_updatedAt' : ''}'
+                                      : (_error ?? 'No active tunnel.'),
+                              style: const TextStyle(fontSize: 16, height: 1.5),
                             ),
                             const SizedBox(height: 32),
                             Wrap(
@@ -111,13 +185,14 @@ class HomePage extends StatelessWidget {
                                   : WrapAlignment.center,
                               children: [
                                 FilledButton.icon(
-                                  onPressed: () {},
-                                  icon: const Icon(Icons.arrow_forward),
-                                  label: const Text('Explore the page'),
+                                  onPressed: hasUrl ? _openComfy : null,
+                                  icon: const Icon(Icons.open_in_new),
+                                  label: const Text('Open ComfyUI'),
                                 ),
-                                OutlinedButton(
-                                  onPressed: () {},
-                                  child: const Text('Learn more'),
+                                OutlinedButton.icon(
+                                  onPressed: _loading ? null : _loadTunnelUrl,
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Refresh'),
                                 ),
                               ],
                             ),
