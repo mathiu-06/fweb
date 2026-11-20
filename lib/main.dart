@@ -87,6 +87,11 @@ class _HomePageState extends State<HomePage> {
                   : Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
+  const Container(
+    color: Colors.red,
+    height: 50,
+    width: 500,
+  ),
                         const Text('comfy_UI: ', style: TextStyle(fontSize: 18)),
                         MouseRegion(
                           cursor: SystemMouseCursors.click,
