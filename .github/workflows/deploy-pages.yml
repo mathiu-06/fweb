@@ -23,7 +23,7 @@ jobs:
         with:
           channel: stable
       - run: flutter pub get
-      - run: flutter build web --release --base-href /fweb/
+      - run: flutter build web --release --base-href /
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
