@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:js_interop';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // Added flutter_svg import
+import 'dart:ui_web' as ui_web;
+import 'package:web/web.dart' as web;
 
 @JS('window.open')
 external void _openUrl(String url, String target);
@@ -49,6 +50,17 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadTunnelUrl();
+
+    // Register an HTML <img> element to let the browser handle the SVG animation natively
+    ui_web.platformViewRegistry.registerViewFactory(
+      'animated-rata',
+      (int viewId) {
+        return web.HTMLImageElement()
+          ..src = 'assets/rata.svg'
+          ..style.width = '100%'
+          ..style.height = '100%';
+      },
+    );
   }
 
   Future<void> _loadTunnelUrl() async {
@@ -77,13 +89,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Center(
-        // Replaced placeholder with SvgPicture
-        child: SvgPicture.asset(
-          'assets/images/rata.svg',
+        child: SizedBox(
           width: 200,
           height: 200,
+          child: HtmlElementView(viewType: 'animated-rata'),
         ),
       ),
     );
