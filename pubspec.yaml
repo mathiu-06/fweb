@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-  flutter_svg: ^2.0.10  # Use the latest version
+  web: ^0.5.1 # Or any compatible version
 
 dev_dependencies:
   flutter_test:
