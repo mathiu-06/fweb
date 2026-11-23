@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:js_interop';
 import 'package:flutter/material.dart';
-import 'dart:ui_web' as ui_web;
-import 'package:web/web.dart' as web;
+import 'package:lottie/lottie.dart'; // Import the Lottie package
 
 @JS('window.open')
 external void _openUrl(String url, String target);
@@ -50,25 +49,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadTunnelUrl();
-
-    // Use <object> instead of <img> to allow SVG animations to play
-    ui_web.platformViewRegistry.registerViewFactory(
-      'animated-rata',
-      (int viewId) {
-        final element = web.document.createElement('object') as web.HTMLObjectElement;
-        element.type = 'image/svg+xml';
-        element.data = 'assets/rata.svg'; // Make sure this matches your pubspec.yaml exactly
-        element.style.width = '100%';
-        element.style.height = '100%';
-        element.style.border = 'none';
-        
-        // Prevents the browser from showing a default background or scrollbars
-        element.style.overflow = 'hidden'; 
-        element.style.backgroundColor = 'transparent';
-        
-        return element;
-      },
-    );
+    // Removed the platformViewRegistry HTML injection
   }
 
   Future<void> _loadTunnelUrl() async {
@@ -97,12 +78,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: SizedBox(
+        child: Lottie.asset(
+          'assets/animation.json',
           width: 200,
           height: 200,
-          child: HtmlElementView(viewType: 'animated-rata'),
+          fit: BoxFit.contain,
         ),
       ),
     );
