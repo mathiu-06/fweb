@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
-  web: ^0.5.1 # Or any compatible version
+  lottie: ^3.1.2 # Use the latest version
 
 dev_dependencies:
   flutter_test:
