@@ -51,14 +51,22 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _loadTunnelUrl();
 
-    // Register an HTML <img> element to let the browser handle the SVG animation natively
+    // Use <object> instead of <img> to allow SVG animations to play
     ui_web.platformViewRegistry.registerViewFactory(
       'animated-rata',
       (int viewId) {
-        return web.HTMLImageElement()
-          ..src = 'assets/rata.svg'
-          ..style.width = '100%'
-          ..style.height = '100%';
+        final element = web.document.createElement('object') as web.HTMLObjectElement;
+        element.type = 'image/svg+xml';
+        element.data = 'assets/rata.svg'; // Make sure this matches your pubspec.yaml exactly
+        element.style.width = '100%';
+        element.style.height = '100%';
+        element.style.border = 'none';
+        
+        // Prevents the browser from showing a default background or scrollbars
+        element.style.overflow = 'hidden'; 
+        element.style.backgroundColor = 'transparent';
+        
+        return element;
       },
     );
   }
