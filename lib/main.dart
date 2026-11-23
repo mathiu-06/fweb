@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:js_interop';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // Added flutter_svg import
 
 @JS('window.open')
 external void _openUrl(String url, String target);
@@ -78,37 +79,11 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: _loading
-              ? const Text('comfy_UI: loading...', style: TextStyle(fontSize: 18))
-              : _tunnelUrl == null || _tunnelUrl!.isEmpty
-                  ? const Text('comfy_UI: offline', style: TextStyle(fontSize: 18))
-                  : Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-  const Container(
-    color: Colors.red,
-    height: 50,
-    width: 500,
-  ),
-                        const Text('comfy_UI: ', style: TextStyle(fontSize: 18)),
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () => _openUrl(_tunnelUrl!, '_blank'),
-                            child: Text(
-                              _tunnelUrl!,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.blue,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+        // Replaced placeholder with SvgPicture
+        child: SvgPicture.asset(
+          'assets/images/rata.svg',
+          width: 200,
+          height: 200,
         ),
       ),
     );
